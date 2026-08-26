@@ -1,0 +1,893 @@
+{
+ "cnc-mill-5040": {
+  "path": "media/cnc-mill-5040-1600.jpg",
+  "basename": "cnc-mill-5040",
+  "variants": [
+   1600,
+   1200,
+   800,
+   400
+  ],
+  "width": 1600,
+  "height": 2404,
+  "mime": "image/jpeg",
+  "source": "محصولات-2/محصولات-2/MACHIN-PIC/001.jpg",
+  "alt_fa": "دستگاه فرز CNC چهار محور مدل ۵۰۴۰ ساخت رهیافت صنعت",
+  "alt_en": "Rahyaft Sanat 5040 four-axis CNC milling machine",
+  "alt_ar": "ماكينة تفريز CNC رباعية المحاور موديل 5040"
+ },
+ "cnc-4th-axis": {
+  "path": "media/cnc-4th-axis-1600.jpg",
+  "basename": "cnc-4th-axis",
+  "variants": [
+   1600,
+   800,
+   400
+  ],
+  "width": 1075,
+  "height": 754,
+  "mime": "image/jpeg",
+  "source": "محصولات-2/محصولات-2/MACHIN-PIC/0f01.jpg",
+  "alt_fa": "محور چهارم CNC با صفحه دوران و سه نظام",
+  "alt_en": "CNC 4th axis rotary table with three-jaw chuck",
+  "alt_ar": "المحور الرابع CNC مع طاولة دوارة"
+ },
+ "mini-cnc-mill": {
+  "path": "media/mini-cnc-mill-1600.jpg",
+  "basename": "mini-cnc-mill",
+  "variants": [
+   1600,
+   1200,
+   800,
+   400
+  ],
+  "width": 1600,
+  "height": 1200,
+  "mime": "image/jpeg",
+  "source": "محصولات-1/محصولات-1/دستگاه مینی سی ان سی فرز/photo18332847034.jpg",
+  "alt_fa": "دستگاه مینی سی ان سی فرز با محفظه ایمنی بسته",
+  "alt_en": "Mini CNC milling machine with enclosed safety cabin",
+  "alt_ar": "ماكينة تفريز CNC مصغرة بحجيرة أمان مغلقة"
+ },
+ "mini-cnc-mill-2": {
+  "path": "media/mini-cnc-mill-2-1600.jpg",
+  "basename": "mini-cnc-mill-2",
+  "variants": [
+   1600,
+   800,
+   400
+  ],
+  "width": 944,
+  "height": 799,
+  "mime": "image/jpeg",
+  "source": "محصولات-1/محصولات-1/دستگاه مینی سی ان سی فرز/04.JPG",
+  "alt_fa": "نمای داخلی محفظه کاری دستگاه مینی سی ان سی فرز",
+  "alt_en": "Interior working area of the mini CNC milling machine",
+  "alt_ar": "منطقة العمل الداخلية لماكينة التفريز المصغرة"
+ },
+ "mini-cnc-lathe": {
+  "path": "media/mini-cnc-lathe-1600.jpg",
+  "basename": "mini-cnc-lathe",
+  "variants": [
+   1600,
+   1200,
+   800,
+   400
+  ],
+  "width": 1600,
+  "height": 1200,
+  "mime": "image/jpeg",
+  "source": "محصولات-1/محصولات-1/دستگاه مینی سی ان سی تراش/photo16342735191.jpg",
+  "alt_fa": "دستگاه مینی سی ان سی تراش با درب محافظ شیشه‌ای",
+  "alt_en": "Mini CNC lathe with transparent guard door",
+  "alt_ar": "مخرطة CNC مصغرة بباب واقٍ شفاف"
+ },
+ "hydraulic-press-60t": {
+  "path": "media/hydraulic-press-60t-1600.jpg",
+  "basename": "hydraulic-press-60t",
+  "variants": [
+   1600,
+   400
+  ],
+  "width": 410,
+  "height": 530,
+  "mime": "image/jpeg",
+  "source": "محصولات-1/محصولات-1/پرس 60 تن/پرس 60تن.PNG",
+  "alt_fa": "پرس هیدرولیک ۶۰ تن با فریم H و میز کناری",
+  "alt_en": "Sixty-ton H-frame hydraulic press with side table",
+  "alt_ar": "مكبس هيدروليكي 60 طن بإطار H"
+ },
+ "screw-compressor": {
+  "path": "media/screw-compressor-1600.jpg",
+  "basename": "screw-compressor",
+  "variants": [
+   1600,
+   1200,
+   800,
+   400
+  ],
+  "width": 1600,
+  "height": 1280,
+  "mime": "image/jpeg",
+  "source": "محصولات-3/محصولات-3/Render-Rahyaft-Machin/002.jpg",
+  "alt_fa": "کمپرسور باد اسکرو رهیافت صنعت با بدنه آبی",
+  "alt_en": "Rahyaft Sanat rotary screw air compressor",
+  "alt_ar": "ضاغط هواء لولبي من رهيافت صنعت"
+ },
+ "screw-compressor-panel": {
+  "path": "media/screw-compressor-panel-1600.jpg",
+  "basename": "screw-compressor-panel",
+  "variants": [
+   1600,
+   400
+  ],
+  "width": 765,
+  "height": 1020,
+  "mime": "image/jpeg",
+  "source": "محصولات-1/محصولات-1/دستگاه کمپرسور باد اسکرو/1.jpg",
+  "alt_fa": "تابلو کنترل کمپرسور باد اسکرو شامل گیج فشار و کلید اضطراری",
+  "alt_en": "Screw compressor control panel with pressure gauge and emergency stop",
+  "alt_ar": "لوحة تحكم الضاغط اللولبي مع مقياس الضغط"
+ },
+ "screw-compressor-unit": {
+  "path": "media/screw-compressor-unit-1600.jpg",
+  "basename": "screw-compressor-unit",
+  "variants": [
+   1600,
+   400
+  ],
+  "width": 765,
+  "height": 1020,
+  "mime": "image/jpeg",
+  "source": "محصولات-1/محصولات-1/دستگاه کمپرسور باد اسکرو/2.jpg",
+  "alt_fa": "کمپرسور باد اسکرو نصب‌شده در محل کارگاه",
+  "alt_en": "Screw air compressor installed on site",
+  "alt_ar": "ضاغط الهواء اللولبي مركّب في الموقع"
+ },
+ "screw-compressor-cut": {
+  "path": "media/screw-compressor-cut-1600.jpg",
+  "basename": "screw-compressor-cut",
+  "variants": [
+   1600,
+   400
+  ],
+  "width": 678,
+  "height": 610,
+  "mime": "image/jpeg",
+  "source": "محصولات-1/محصولات-1/دستگاه کمپرسور باد اسکرو/screw.JPG",
+  "alt_fa": "نمای برش‌خورده مجموعه اسکرو کمپرسور",
+  "alt_en": "Cutaway view of the compressor screw assembly",
+  "alt_ar": "مقطع عرضي لمجموعة اللولب"
+ },
+ "cnc-modeling": {
+  "path": "media/cnc-modeling-1600.jpg",
+  "basename": "cnc-modeling",
+  "variants": [
+   1600,
+   1200,
+   800,
+   400
+  ],
+  "width": 1600,
+  "height": 1270,
+  "mime": "image/jpeg",
+  "source": "محصولات-3/محصولات-3/Render-Rahyaft-Machin/CNC-Modeling.17.png",
+  "alt_fa": "دستگاه CNC مدل‌سازی با سازه دروازه‌ای و محفظه بزرگ",
+  "alt_en": "Gantry-type CNC modeling machine with large enclosure",
+  "alt_ar": "ماكينة CNC للنمذجة بهيكل بوابي"
+ },
+ "cnc-modeling-2": {
+  "path": "media/cnc-modeling-2-1600.jpg",
+  "basename": "cnc-modeling-2",
+  "variants": [
+   1600,
+   1200,
+   800,
+   400
+  ],
+  "width": 1600,
+  "height": 900,
+  "mime": "image/jpeg",
+  "source": "محصولات-1/محصولات-1/دستگاه سی ان سی مدلسازی/05.jpg",
+  "alt_fa": "نمای جانبی دستگاه CNC مدل‌سازی",
+  "alt_en": "Side view of the CNC modeling machine",
+  "alt_ar": "منظر جانبي لماكينة CNC للنمذجة"
+ },
+ "cnc-wood-flat": {
+  "path": "media/cnc-wood-flat-1600.jpg",
+  "basename": "cnc-wood-flat",
+  "variants": [
+   1600,
+   1200,
+   800,
+   400
+  ],
+  "width": 1600,
+  "height": 896,
+  "mime": "image/jpeg",
+  "source": "محصولات-2/محصولات-2/MACHIN-PIC/0002021.png",
+  "alt_fa": "دستگاه CNC چوب با میز تخت قرمز و سیستم مکش",
+  "alt_en": "Flat-table CNC wood router with red vacuum bed",
+  "alt_ar": "راوتر CNC للخشب بطاولة مسطحة"
+ },
+ "cnc-wood-flat-front": {
+  "path": "media/cnc-wood-flat-front-1600.jpg",
+  "basename": "cnc-wood-flat-front",
+  "variants": [
+   1600,
+   400
+  ],
+  "width": 581,
+  "height": 410,
+  "mime": "image/jpeg",
+  "source": "محصولات-3/محصولات-3/Render-Rahyaft-Machin/0003.png",
+  "alt_fa": "نمای روبه‌روی دستگاه CNC چوب تخت",
+  "alt_en": "Front view of the flat-table CNC wood router",
+  "alt_ar": "منظر أمامي لراوتر CNC للخشب"
+ },
+ "cnc-wood-rotary": {
+  "path": "media/cnc-wood-rotary-1600.jpg",
+  "basename": "cnc-wood-rotary",
+  "variants": [
+   1600,
+   1200,
+   800,
+   400
+  ],
+  "width": 1600,
+  "height": 1010,
+  "mime": "image/jpeg",
+  "source": "محصولات-1/محصولات-1/دستگاه سی ان سی چوب مدل 130-250/CNC-130-250-Rotary.24.png",
+  "alt_fa": "دستگاه CNC چوب مدل R130-250 مجهز به محور روتاری",
+  "alt_en": "R130-250 CNC wood router equipped with a rotary axis",
+  "alt_ar": "راوتر CNC للخشب موديل R130-250 بمحور دوار"
+ },
+ "cnc-wood-390": {
+  "path": "media/cnc-wood-390-1600.jpg",
+  "basename": "cnc-wood-390",
+  "variants": [
+   1600,
+   400
+  ],
+  "width": 720,
+  "height": 379,
+  "mime": "image/jpeg",
+  "source": "محصولات-1/محصولات-1/دستگاه سی ان سی چوب مدل 250-390/عکس.png",
+  "alt_fa": "دستگاه CNC چوب مدل R250-390 با میز کار بزرگ",
+  "alt_en": "R250-390 CNC wood router with large working table",
+  "alt_ar": "راوتر CNC للخشب موديل R250-390"
+ },
+ "cnc-stone": {
+  "path": "media/cnc-stone-1600.jpg",
+  "basename": "cnc-stone",
+  "variants": [
+   1600,
+   1200,
+   800,
+   400
+  ],
+  "width": 1600,
+  "height": 900,
+  "mime": "image/jpeg",
+  "source": "محصولات-1/محصولات-1/دستگاه سی ان سی سنگ/01.20.png",
+  "alt_fa": "دستگاه CNC سنگ مدل ۱۲۲۵ با محفظه کاملاً بسته",
+  "alt_en": "Model 1225 CNC stone machine with fully enclosed cabin",
+  "alt_ar": "ماكينة CNC للحجر موديل 1225"
+ },
+ "cnc-rotary-10head": {
+  "path": "media/cnc-rotary-10head-1600.jpg",
+  "basename": "cnc-rotary-10head",
+  "variants": [
+   1600,
+   400
+  ],
+  "width": 640,
+  "height": 270,
+  "mime": "image/jpeg",
+  "source": "محصولات-1/محصولات-1/دستگاه روتاری 10کله/jhgg.jpg",
+  "alt_fa": "دستگاه CNC تخت و روتاری ۱۰ کله با اسپیندل‌های موازی",
+  "alt_en": "Flat and rotary CNC machine with ten parallel spindles",
+  "alt_ar": "ماكينة CNC مسطحة ودوارة بعشرة رؤوس"
+ },
+ "wood-lathe": {
+  "path": "media/wood-lathe-1600.jpg",
+  "basename": "wood-lathe",
+  "variants": [
+   1600,
+   1200,
+   800,
+   400
+  ],
+  "width": 1600,
+  "height": 1599,
+  "mime": "image/jpeg",
+  "source": "محصولات-3/محصولات-3/Render-Rahyaft-Machin/k-001.jpg",
+  "alt_fa": "دستگاه خراطی دستی چوب با بستر ریلی و مرغک",
+  "alt_en": "Manual wood turning lathe with rail bed and tailstock",
+  "alt_ar": "مخرطة خشب يدوية بقاعدة سكة ومسند"
+ },
+ "angle-head": {
+  "path": "media/angle-head-1600.jpg",
+  "basename": "angle-head",
+  "variants": [
+   1600
+  ],
+  "width": 352,
+  "height": 676,
+  "mime": "image/jpeg",
+  "source": "محصولات-1/محصولات-1/Angle Head-BT40/انگل هد.PNG",
+  "alt_fa": "انگل هد ISO40 جهت ماشین‌کاری زاویه‌دار",
+  "alt_en": "ISO40 angle head for right-angle machining",
+  "alt_ar": "رأس زاوي ISO40 للتشغيل الزاوي"
+ },
+ "bt30-spindle": {
+  "path": "media/bt30-spindle-1600.jpg",
+  "basename": "bt30-spindle",
+  "variants": [
+   1600,
+   1200,
+   800,
+   400
+  ],
+  "width": 1600,
+  "height": 1200,
+  "mime": "image/jpeg",
+  "source": "محصولات-1/محصولات-1/اسپیندل بی تی 30/photo18332850601.jpg",
+  "alt_fa": "اسپیندل هوا خنک BT30 با تعویض ابزار پنوماتیکی",
+  "alt_en": "Air-cooled BT30 spindle with pneumatic tool change",
+  "alt_ar": "محور دوران BT30 مبرد بالهواء"
+ },
+ "bt30-spindle-drawing": {
+  "path": "media/bt30-spindle-drawing-1600.jpg",
+  "basename": "bt30-spindle-drawing",
+  "variants": [
+   1600,
+   400
+  ],
+  "width": 420,
+  "height": 490,
+  "mime": "image/jpeg",
+  "source": "محصولات-1/محصولات-1/اسپیندل بی تی 30/9.PNG",
+  "alt_fa": "نقشه فنی و برش مقطعی اسپیندل BT30",
+  "alt_en": "Technical drawing and section view of the BT30 spindle",
+  "alt_ar": "رسم فني ومقطع لمحور الدوران BT30"
+ },
+ "relay-card": {
+  "path": "media/relay-card-1600.jpg",
+  "basename": "relay-card",
+  "variants": [
+   1600,
+   800,
+   400
+  ],
+  "width": 877,
+  "height": 620,
+  "mime": "image/jpeg",
+  "source": "محصولات-1/محصولات-1/کارت رله/photo18116996646.jpg",
+  "alt_fa": "کارت رله صنعتی رهیافت صنعت با رله‌های مستقل و نمایشگر LED",
+  "alt_en": "Rahyaft Sanat industrial relay card with independent relays and LED indicators",
+  "alt_ar": "بطاقة مرحّلات صناعية مع مؤشرات LED"
+ },
+ "rnd-aero-plane": {
+  "path": "media/rnd-aero-plane-1600.jpg",
+  "basename": "rnd-aero-plane",
+  "variants": [
+   1600,
+   1200,
+   800,
+   400
+  ],
+  "width": 1468,
+  "height": 1155,
+  "mime": "image/jpeg",
+  "source": "صفحه اصلی -1/صفحه اصلی -1/431873598_10211475319115030_6814425387417003973_n.jpg",
+  "alt_fa": "هواپیمای سبک بر روی سطح آب",
+  "alt_en": "Light aircraft on a water surface",
+  "alt_ar": "طائرة خفيفة على سطح الماء"
+ },
+ "rnd-aero-1": {
+  "path": "media/rnd-aero-1-1600.jpg",
+  "basename": "rnd-aero-1",
+  "variants": [
+   1600,
+   1200,
+   800,
+   400
+  ],
+  "width": 1235,
+  "height": 937,
+  "mime": "image/jpeg",
+  "source": "تحقیق و توسعه-1/تحقیق و توسعه-1/photo16502517421.jpg",
+  "alt_fa": "فعالیت‌های طراحی و ساخت در حوزه صنعت هوایی",
+  "alt_en": "Design and build activity in the aerospace field",
+  "alt_ar": "أنشطة التصميم والتصنيع في مجال الطيران"
+ },
+ "rnd-aero-2": {
+  "path": "media/rnd-aero-2-1600.jpg",
+  "basename": "rnd-aero-2",
+  "variants": [
+   1600,
+   400
+  ],
+  "width": 763,
+  "height": 1080,
+  "mime": "image/jpeg",
+  "source": "تحقیق و توسعه-1/تحقیق و توسعه-1/photo18347004714.jpg",
+  "alt_fa": "ساخت سازه‌های هوایی در کارگاه شرکت",
+  "alt_en": "Aerospace structures under construction in the workshop",
+  "alt_ar": "تصنيع الهياكل الجوية في الورشة"
+ },
+ "rnd-aero-3": {
+  "path": "media/rnd-aero-3-1600.jpg",
+  "basename": "rnd-aero-3",
+  "variants": [
+   1600,
+   400
+  ],
+  "width": 764,
+  "height": 1080,
+  "mime": "image/jpeg",
+  "source": "تحقیق و توسعه-1/تحقیق و توسعه-1/photo18347009491.jpg",
+  "alt_fa": "مراحل مونتاژ بدنه در پروژه هوایی",
+  "alt_en": "Airframe assembly stages in the aerospace project",
+  "alt_ar": "مراحل تجميع الهيكل في مشروع الطيران"
+ },
+ "rnd-acoustic-1": {
+  "path": "media/rnd-acoustic-1-1600.jpg",
+  "basename": "rnd-acoustic-1",
+  "variants": [
+   1600,
+   400
+  ],
+  "width": 409,
+  "height": 293,
+  "mime": "image/jpeg",
+  "source": "تحقیق و توسعه-2/تحقیق و توسعه-2/r1.JPG",
+  "alt_fa": "نتایج شبیه‌سازی آیرواکوستیکی نازل خروجی موتور جت",
+  "alt_en": "Aeroacoustic simulation result for a jet engine exhaust nozzle",
+  "alt_ar": "نتائج المحاكاة الصوتية لفوهة محرك نفاث"
+ },
+ "rnd-acoustic-2": {
+  "path": "media/rnd-acoustic-2-1600.jpg",
+  "basename": "rnd-acoustic-2",
+  "variants": [
+   1600,
+   400
+  ],
+  "width": 788,
+  "height": 357,
+  "mime": "image/jpeg",
+  "source": "تحقیق و توسعه-2/تحقیق و توسعه-2/r6.JPG",
+  "alt_fa": "کانتور میدان جریان در تحلیل آیرودینامیکی نازل",
+  "alt_en": "Flow-field contour from the nozzle aerodynamic analysis",
+  "alt_ar": "كنتور مجال التدفق في تحليل الفوهة"
+ },
+ "rnd-acoustic-3": {
+  "path": "media/rnd-acoustic-3-1600.jpg",
+  "basename": "rnd-acoustic-3",
+  "variants": [
+   1600,
+   400
+  ],
+  "width": 713,
+  "height": 388,
+  "mime": "image/jpeg",
+  "source": "تحقیق و توسعه-2/تحقیق و توسعه-2/r10.JPG",
+  "alt_fa": "توزیع تراز فشار صوتی در اطراف نازل",
+  "alt_en": "Sound pressure level distribution around the nozzle",
+  "alt_ar": "توزيع مستوى ضغط الصوت حول الفوهة"
+ },
+ "rnd-acoustic-4": {
+  "path": "media/rnd-acoustic-4-1600.jpg",
+  "basename": "rnd-acoustic-4",
+  "variants": [
+   1600,
+   400
+  ],
+  "width": 689,
+  "height": 399,
+  "mime": "image/jpeg",
+  "source": "تحقیق و توسعه-2/تحقیق و توسعه-2/r12.JPG",
+  "alt_fa": "مقایسه رژیم‌های پروازی در تحلیل آیرواکوستیک",
+  "alt_en": "Comparison of flight regimes in the aeroacoustic analysis",
+  "alt_ar": "مقارنة أنظمة الطيران في التحليل الصوتي"
+ },
+ "rnd-pump-1": {
+  "path": "media/rnd-pump-1-1600.jpg",
+  "basename": "rnd-pump-1",
+  "variants": [
+   1600,
+   800,
+   400
+  ],
+  "width": 1128,
+  "height": 860,
+  "mime": "image/jpeg",
+  "source": "تحقیق و توسعه-3-1/تحقیق و توسعه-3-1/c3.jpg",
+  "alt_fa": "مدل سه‌بعدی پمپ جابه‌جایی مثبت درون‌چاهی",
+  "alt_en": "Three-dimensional model of a downhole positive displacement pump",
+  "alt_ar": "نموذج ثلاثي الأبعاد لمضخة إزاحة إيجابية"
+ },
+ "rnd-pump-2": {
+  "path": "media/rnd-pump-2-1600.jpg",
+  "basename": "rnd-pump-2",
+  "variants": [
+   1600,
+   1200,
+   800,
+   400
+  ],
+  "width": 1600,
+  "height": 900,
+  "mime": "image/jpeg",
+  "source": "تحقیق و توسعه-3-1/تحقیق و توسعه-3-1/5-6section.jpg",
+  "alt_fa": "نمای برش‌خورده استاتور و روتور پمپ",
+  "alt_en": "Section view of the pump stator and rotor",
+  "alt_ar": "مقطع عرضي لعضو الإركاد والدوار"
+ },
+ "rnd-pump-3": {
+  "path": "media/rnd-pump-3-1600.jpg",
+  "basename": "rnd-pump-3",
+  "variants": [
+   1600,
+   800,
+   400
+  ],
+  "width": 892,
+  "height": 890,
+  "mime": "image/jpeg",
+  "source": "تحقیق و توسعه-3-2/تحقیق و توسعه-3-2/3lobpump.jpg",
+  "alt_fa": "هندسه پمپ سه‌لوب طراحی‌شده در شرکت",
+  "alt_en": "Geometry of the in-house designed three-lobe pump",
+  "alt_ar": "هندسة مضخة ثلاثية الفصوص"
+ },
+ "rnd-pump-4": {
+  "path": "media/rnd-pump-4-1600.jpg",
+  "basename": "rnd-pump-4",
+  "variants": [
+   1600,
+   400
+  ],
+  "width": 790,
+  "height": 607,
+  "mime": "image/jpeg",
+  "source": "تحقیق و توسعه-3-2/تحقیق و توسعه-3-2/pump80ASEMoyher.jpg",
+  "alt_fa": "مجموعه مونتاژشده پمپ درون‌چاهی",
+  "alt_en": "Assembled downhole pump unit",
+  "alt_ar": "وحدة المضخة المجمعة"
+ },
+ "rnd-lab-1": {
+  "path": "media/rnd-lab-1-1600.jpg",
+  "basename": "rnd-lab-1",
+  "variants": [
+   1600,
+   1200,
+   800,
+   400
+  ],
+  "width": 1430,
+  "height": 821,
+  "mime": "image/jpeg",
+  "source": "تحقیق و توسعه-4/تحقیق و توسعه-4/b1.jpg",
+  "alt_fa": "دستگاه تونل باد بازطراحی و ساخته‌شده توسط شرکت",
+  "alt_en": "Wind tunnel reverse-engineered and built by the company",
+  "alt_ar": "نفق هوائي أُعيدت هندسته وتصنيعه"
+ },
+ "rnd-lab-2": {
+  "path": "media/rnd-lab-2-1600.jpg",
+  "basename": "rnd-lab-2",
+  "variants": [
+   1600,
+   1200,
+   800,
+   400
+  ],
+  "width": 1263,
+  "height": 947,
+  "mime": "image/jpeg",
+  "source": "تحقیق و توسعه-4/تحقیق و توسعه-4/b2.jpg",
+  "alt_fa": "بخش آزمایش تجهیزات آزمایشگاهی هوافضا",
+  "alt_en": "Aerospace laboratory equipment test section",
+  "alt_ar": "قسم اختبار معدات مختبر الفضاء الجوي"
+ },
+ "rnd-lab-3": {
+  "path": "media/rnd-lab-3-1600.jpg",
+  "basename": "rnd-lab-3",
+  "variants": [
+   1600,
+   1200,
+   800,
+   400
+  ],
+  "width": 1430,
+  "height": 840,
+  "mime": "image/jpeg",
+  "source": "تحقیق و توسعه-4/تحقیق و توسعه-4/b3.jpg",
+  "alt_fa": "تجهیزات آزمایشگاهی تعمیر و بازسازی‌شده",
+  "alt_en": "Repaired and refurbished laboratory equipment",
+  "alt_ar": "معدات مختبرية تم إصلاحها وتجديدها"
+ },
+ "rnd-lab-4": {
+  "path": "media/rnd-lab-4-1600.jpg",
+  "basename": "rnd-lab-4",
+  "variants": [
+   1600,
+   1200,
+   800,
+   400
+  ],
+  "width": 1600,
+  "height": 1200,
+  "mime": "image/jpeg",
+  "source": "تحقیق و توسعه-4/تحقیق و توسعه-4/photo18331623695.jpg",
+  "alt_fa": "دستگاه تست رادار فاصله‌سنج",
+  "alt_en": "Rangefinder radar test rig",
+  "alt_ar": "جهاز اختبار رادار قياس المسافة"
+ },
+ "rnd-linear-1": {
+  "path": "media/rnd-linear-1-1600.jpg",
+  "basename": "rnd-linear-1",
+  "variants": [
+   1600,
+   1200,
+   800,
+   400
+  ],
+  "width": 1536,
+  "height": 859,
+  "mime": "image/jpeg",
+  "source": "تحقیق و توسعه-5/تحقیق و توسعه-5/LM.jpg",
+  "alt_fa": "موتور خطی دو کیلووات طراحی و ساخته‌شده در شرکت",
+  "alt_en": "Two-kilowatt linear motor designed and built in house",
+  "alt_ar": "محرك خطي بقدرة كيلوواتين"
+ },
+ "rnd-linear-2": {
+  "path": "media/rnd-linear-2-1600.jpg",
+  "basename": "rnd-linear-2",
+  "variants": [
+   1600,
+   1200,
+   800,
+   400
+  ],
+  "width": 1600,
+  "height": 869,
+  "mime": "image/jpeg",
+  "source": "تحقیق و توسعه-5/تحقیق و توسعه-5/platcore.jpg",
+  "alt_fa": "هسته و صفحات موتور خطی",
+  "alt_en": "Core and plates of the linear motor",
+  "alt_ar": "نواة وصفائح المحرك الخطي"
+ },
+ "rnd-linear-3": {
+  "path": "media/rnd-linear-3-1600.jpg",
+  "basename": "rnd-linear-3",
+  "variants": [
+   1600,
+   1200,
+   800,
+   400
+  ],
+  "width": 1600,
+  "height": 567,
+  "mime": "image/jpeg",
+  "source": "تحقیق و توسعه-5/تحقیق و توسعه-5/IMG_20180922_174451.jpg",
+  "alt_fa": "مراحل ساخت و مونتاژ موتور خطی",
+  "alt_en": "Linear motor fabrication and assembly stages",
+  "alt_ar": "مراحل تصنيع وتجميع المحرك الخطي"
+ },
+ "hero-automation": {
+  "path": "media/hero-automation-1600.jpg",
+  "basename": "hero-automation",
+  "variants": [
+   1600,
+   400
+  ],
+  "width": 620,
+  "height": 344,
+  "mime": "image/jpeg",
+  "source": "صفحه اصلی -1/صفحه اصلی -1/001.png",
+  "alt_fa": "اپراتور در حال کنترل بازوهای رباتیک خط تولید",
+  "alt_en": "Operator controlling robotic arms on a production line",
+  "alt_ar": "مشغل يتحكم في أذرع روبوتية على خط الإنتاج"
+ },
+ "hero-machining": {
+  "path": "media/hero-machining-1600.jpg",
+  "basename": "hero-machining",
+  "variants": [
+   1600,
+   1200,
+   800,
+   400
+  ],
+  "width": 1600,
+  "height": 1068,
+  "mime": "image/jpeg",
+  "source": "صفحه اصلی -4/worker-operating-industrial-machine-metal-workshop.jpg",
+  "alt_fa": "ماشین‌کار در حال کار با دستگاه صنعتی در کارگاه فلزی",
+  "alt_en": "Machinist operating an industrial machine in a metal workshop",
+  "alt_ar": "مشغل آلات يعمل على ماكينة صناعية"
+ },
+ "hero-welding": {
+  "path": "media/hero-welding-1600.jpg",
+  "basename": "hero-welding",
+  "variants": [
+   1600,
+   1200,
+   800,
+   400
+  ],
+  "width": 1600,
+  "height": 1067,
+  "mime": "image/jpeg",
+  "source": "صفحه اصلی -3/man-is-working-metal-factory-he-is-welding-piece-rail-using-special-tools.jpg",
+  "alt_fa": "جوشکار در حال جوشکاری قطعه فلزی با تجهیزات تخصصی",
+  "alt_en": "Welder joining a metal part with specialised tools",
+  "alt_ar": "لحام يقوم بلحام قطعة معدنية"
+ },
+ "hero-factory": {
+  "path": "media/hero-factory-1600.jpg",
+  "basename": "hero-factory",
+  "variants": [
+   1600,
+   1200,
+   800,
+   400
+  ],
+  "width": 1600,
+  "height": 1067,
+  "mime": "image/jpeg",
+  "source": "صفحه اصلی -1/صفحه اصلی -1/male-worker-factory.jpg",
+  "alt_fa": "کارگر صنعتی در حال کار با دستگاه تراش در کارخانه",
+  "alt_en": "Industrial worker operating a lathe in the factory",
+  "alt_ar": "عامل صناعي يشغّل مخرطة في المصنع"
+ },
+ "sparks-band": {
+  "path": "media/sparks-band-1600.jpg",
+  "basename": "sparks-band",
+  "variants": [
+   1600,
+   1200,
+   800,
+   400
+  ],
+  "width": 1600,
+  "height": 573,
+  "mime": "image/jpeg",
+  "source": "صفحه اصلی -1/صفحه اصلی -1/002.jpg",
+  "alt_fa": "جرقه‌های ناشی از براده‌برداری فلز",
+  "alt_en": "Sparks generated during metal cutting",
+  "alt_ar": "شرارات ناتجة عن قطع المعادن"
+ },
+ "engineering-desk": {
+  "path": "media/engineering-desk-1600.jpg",
+  "basename": "engineering-desk",
+  "variants": [
+   1600,
+   800,
+   400
+  ],
+  "width": 962,
+  "height": 560,
+  "mime": "image/jpeg",
+  "source": "صفحه اصلی -1/صفحه اصلی -1/s1.PNG",
+  "alt_fa": "کارشناس واحد مهندسی در حال طراحی قطعه با نرم‌افزار CAD",
+  "alt_en": "Engineer designing a part with CAD software",
+  "alt_ar": "مهندس يصمم قطعة باستخدام برنامج CAD"
+ },
+ "team-culture": {
+  "path": "media/team-culture-1600.jpg",
+  "basename": "team-culture",
+  "variants": [
+   1600,
+   1200,
+   800,
+   400
+  ],
+  "width": 1280,
+  "height": 528,
+  "mime": "image/jpeg",
+  "source": "صفحه اصلی -1/صفحه اصلی -1/photo16340525253.jpg",
+  "alt_fa": "اعضای تیم در فضای باز هنگام غروب",
+  "alt_en": "Team members outdoors at sunset",
+  "alt_ar": "أعضاء الفريق في الهواء الطلق عند الغروب"
+ },
+ "about-workshop": {
+  "path": "media/about-workshop-1600.jpg",
+  "basename": "about-workshop",
+  "variants": [
+   1600,
+   400
+  ],
+  "width": 720,
+  "height": 462,
+  "mime": "image/jpeg",
+  "source": "درباره ما/درباره ما/15327366_1432714563423717_748638323082550860_n.jpg",
+  "alt_fa": "ستون‌های تخت جمشید نماد میراث مهندسی ایران",
+  "alt_en": "Columns of Persepolis, a symbol of Iranian engineering heritage",
+  "alt_ar": "أعمدة برسبوليس رمز التراث الهندسي الإيراني"
+ },
+ "persepolis": {
+  "path": "media/persepolis-1600.jpg",
+  "basename": "persepolis",
+  "variants": [
+   1600,
+   800,
+   400
+  ],
+  "width": 800,
+  "height": 678,
+  "mime": "image/jpeg",
+  "source": "درباره ما/درباره ما/persepolis-32.jpg",
+  "alt_fa": "دروازه سنگی تخت جمشید در برابر آسمان",
+  "alt_en": "Stone gateway of Persepolis against the sky",
+  "alt_ar": "البوابة الحجرية لبرسبوليس"
+ },
+ "tile-nezami": {
+  "path": "media/tile-nezami-1600.jpg",
+  "basename": "tile-nezami",
+  "variants": [
+   1600,
+   1200,
+   800,
+   400
+  ],
+  "width": 1600,
+  "height": 1200,
+  "mime": "image/jpeg",
+  "source": "صفحه اصلی -1/صفحه اصلی -1/IMG_20150325_183723.jpg",
+  "alt_fa": "کاشی‌کاری با شعر نظامی درباره ارزش دانایی",
+  "alt_en": "Tilework bearing a Nezami verse on the value of knowledge",
+  "alt_ar": "زخرفة قاشانية تحمل بيتاً لنظامي"
+ },
+ "tile-ferdowsi": {
+  "path": "media/tile-ferdowsi-1600.jpg",
+  "basename": "tile-ferdowsi",
+  "variants": [
+   1600,
+   1200,
+   800,
+   400
+  ],
+  "width": 1600,
+  "height": 1200,
+  "mime": "image/jpeg",
+  "source": "صفحه اصلی -1/صفحه اصلی -1/IMG_20150325_183744.jpg",
+  "alt_fa": "کاشی‌کاری با شعر فردوسی درباره آموختن",
+  "alt_en": "Tilework bearing a Ferdowsi verse on learning",
+  "alt_ar": "زخرفة قاشانية تحمل بيتاً للفردوسي"
+ },
+ "isfahan-skyline": {
+  "path": "media/isfahan-skyline-1600.jpg",
+  "basename": "isfahan-skyline",
+  "variants": [
+   1600,
+   1200,
+   800,
+   400
+  ],
+  "width": 1600,
+  "height": 1131,
+  "mime": "image/jpeg",
+  "source": "صفحه اصلی -2/صفحه اصلی -2/فوتر صفحه اول سایت/Isfahan.Skyline32_0.png",
+  "alt_fa": "خط آسمان شهر اصفهان",
+  "alt_en": "Skyline of the city of Isfahan",
+  "alt_ar": "أفق مدينة أصفهان"
+ },
+ "isfahan-band": {
+  "path": "media/isfahan-band-1600.jpg",
+  "basename": "isfahan-band",
+  "variants": [
+   1600,
+   1200,
+   800,
+   400
+  ],
+  "width": 1600,
+  "height": 157,
+  "mime": "image/jpeg",
+  "source": "صفحه اصلی -2/صفحه اصلی -2/فوتر صفحه اول سایت/esfahan.JPG",
+  "alt_fa": "نوار تصویری خط آسمان اصفهان",
+  "alt_en": "Isfahan skyline banner strip",
+  "alt_ar": "شريط أفق أصفهان"
+ }
+}

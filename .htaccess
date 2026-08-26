@@ -1,0 +1,117 @@
+# ---------------------------------------------------------------------------
+# Rahyaft Sanat — front controller & hardening
+# Safe for standard Apache shared hosting (cPanel). Every directive that is not
+# universally available is wrapped in <IfModule> so the site still boots if the
+# module is missing.
+# ---------------------------------------------------------------------------
+
+# Never expose a directory index.
+Options -Indexes
+
+# Default charset for text responses.
+AddDefaultCharset UTF-8
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # If the app lives in a sub-directory, uncomment and adjust:
+    # RewriteBase /
+
+    # --- HTTPS -------------------------------------------------------------
+    # Uncomment ONLY when a valid certificate is installed. The %{HTTPS} off
+    # test plus the HTTP_X_FORWARDED_PROTO test avoids redirect loops behind a
+    # reverse proxy / CDN that terminates TLS upstream.
+    # RewriteCond %{HTTPS} off
+    # RewriteCond %{HTTP:X-Forwarded-Proto} !https
+    # RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
+
+    # --- Block dot-files (.env, .git, ...) ---------------------------------
+    RewriteRule (^|/)\.(?!well-known/) - [F,L]
+
+    # --- Block direct access to application directories --------------------
+    RewriteRule ^(app|config|database|resources|routes|storage)(/|$) - [F,L]
+
+    # --- Front controller --------------------------------------------------
+    # Anything that is not a real file or directory goes to index.php.
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^ index.php [L]
+</IfModule>
+
+<IfModule !mod_rewrite.c>
+    # Fallback when mod_rewrite is unavailable: index.php still serves the site
+    # and PATH_INFO style URLs (/index.php/fa/products) keep working.
+    DirectoryIndex index.php
+</IfModule>
+
+# --- Deny sensitive files even without mod_rewrite -------------------------
+<FilesMatch "^(\.env.*|composer\.(json|lock)|.*\.(ini|log|sql|sh|bak|md))$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+# The installer lock must never be readable over HTTP.
+<Files "installed.lock">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
+</Files>
+
+# --- Security headers -------------------------------------------------------
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-Frame-Options "SAMEORIGIN"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    Header always set Permissions-Policy "geolocation=(), microphone=(), camera=()"
+    # Enable once the site is fully served over HTTPS:
+    # Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+    Header unset X-Powered-By
+</IfModule>
+
+# --- Compression ------------------------------------------------------------
+<IfModule mod_deflate.c>
+    <IfModule mod_filter.c>
+        AddOutputFilterByType DEFLATE text/html text/plain text/css text/xml \
+            application/javascript application/json application/xml \
+            image/svg+xml application/rss+xml
+    </IfModule>
+</IfModule>
+<IfModule mod_brotli.c>
+    <IfModule mod_filter.c>
+        AddOutputFilterByType BROTLI_COMPRESS text/html text/css \
+            application/javascript application/json image/svg+xml
+    </IfModule>
+</IfModule>
+
+# --- Browser caching for static assets --------------------------------------
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType text/css                "access plus 1 year"
+    ExpiresByType application/javascript  "access plus 1 year"
+    ExpiresByType image/jpeg              "access plus 1 year"
+    ExpiresByType image/png               "access plus 1 year"
+    ExpiresByType image/webp              "access plus 1 year"
+    ExpiresByType image/svg+xml           "access plus 1 year"
+    ExpiresByType font/woff2              "access plus 1 year"
+    ExpiresByType text/html               "access plus 0 seconds"
+</IfModule>
+
+<IfModule mod_mime.c>
+    AddType font/woff2 .woff2
+</IfModule>
+
+# --- PHP settings (ignored silently on hosts that disallow them) ------------
+<IfModule mod_php.c>
+    php_flag display_errors off
+    php_value upload_max_filesize 16M
+    php_value post_max_size 20M
+</IfModule>

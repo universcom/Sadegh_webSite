@@ -1,0 +1,39 @@
+# Uploaded media is public, but must never be executed or interpreted.
+Options -Indexes -ExecCGI
+
+# Remove every handler/type association that could run code.
+RemoveHandler .php .phtml .php3 .php4 .php5 .php7 .php8 .phps .pl .py .cgi .asp .aspx .shtml .sh
+RemoveType    .php .phtml .php3 .php4 .php5 .php7 .php8 .phps .pl .py .cgi .asp .aspx .shtml .sh
+
+<IfModule mod_php.c>
+    php_flag engine off
+</IfModule>
+
+# Allow only known-good media extensions; deny everything else outright.
+<FilesMatch "(?i)\.(jpe?g|png|gif|webp|avif|svg|ico|pdf|mp4|webm|woff2?|zip)$">
+    <IfModule mod_authz_core.c>
+        Require all granted
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Allow from all
+    </IfModule>
+</FilesMatch>
+
+<FilesMatch "(?i)\.(php\d?|phtml|phps|pl|py|cgi|asp|aspx|jsp|sh|bash|exe|htaccess)$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+# SVG can carry script — force it to download rather than render inline.
+<FilesMatch "(?i)\.svg$">
+    <IfModule mod_headers.c>
+        Header set Content-Disposition "attachment"
+        Header set Content-Security-Policy "default-src 'none'; style-src 'unsafe-inline'"
+    </IfModule>
+</FilesMatch>

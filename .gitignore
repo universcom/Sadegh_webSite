@@ -1,0 +1,37 @@
+# --- Secrets ---------------------------------------------------------------
+.env
+installed.lock
+
+# --- Runtime ---------------------------------------------------------------
+storage/logs/*
+!storage/logs/.gitkeep
+storage/cache/*
+!storage/cache/.gitkeep
+storage/*.pid
+
+# --- User uploads ----------------------------------------------------------
+# Seeded media is versioned; anything an administrator uploads later is not.
+uploads/files/*
+!uploads/files/.gitkeep
+uploads/thumbs/*
+!uploads/thumbs/.gitkeep
+
+# --- Build / analysis scratch ----------------------------------------------
+_extracted/
+_text/
+
+# --- OS & editor -----------------------------------------------------------
+.DS_Store
+._*
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/
+*.sublime-*
+*.swp
+*~
+
+# --- Dependencies ----------------------------------------------------------
+# PHPMailer is vendored on purpose so the site needs no Composer on the host.
+/vendor/
+composer.lock
