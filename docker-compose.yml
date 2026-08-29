@@ -1,0 +1,106 @@
+# ---------------------------------------------------------------------------
+# Rahyaft Sanat — complete local stack.
+#
+#   docker compose up -d --build      start everything (installs on first run)
+#   docker compose logs -f app        watch the bootstrap and Apache logs
+#   docker compose down               stop; add -v to also drop the database
+#
+# Host ports are deliberately unusual (8100/8081/8025/13306) so the stack never
+# collides with a local MariaDB or another project already using 8000/3306.
+# Override them with WEB_PORT / ADMINER_PORT / MAILPIT_PORT / DB_PORT_HOST,
+# which is what `./dev.sh start --port N` does.
+# ---------------------------------------------------------------------------
+name: rahyaft
+
+services:
+  db:
+    image: mariadb:11.4
+    container_name: rahyaft-db
+    restart: unless-stopped
+    environment:
+      MARIADB_ROOT_PASSWORD: root
+      MARIADB_DATABASE: rahyaft
+      MARIADB_USER: rahyaft_user
+      MARIADB_PASSWORD: rahyaft
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    ports:
+      # Host 13306 → container 3306, avoiding a Homebrew MariaDB on 3306.
+      - "127.0.0.1:${DB_PORT_HOST:-13306}:3306"
+    volumes:
+      - db-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
+
+  app:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    container_name: rahyaft-app
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      APP_ENV: local
+      APP_DEBUG: "true"
+      APP_URL: http://localhost:${WEB_PORT:-8100}
+      APP_DEFAULT_LOCALE: fa
+      APP_LOCALES: fa,en,ar
+      DB_HOST: db
+      DB_PORT: "3306"
+      DB_NAME: rahyaft
+      DB_USER: rahyaft_user
+      DB_PASSWORD: rahyaft
+      ADMIN_NAME: Local Admin
+      ADMIN_EMAIL: admin@localhost
+      ADMIN_PASSWORD: password1234
+      MAIL_MAILER: smtp
+      MAIL_HOST: mailpit
+      MAIL_PORT: "1025"
+      MAIL_ENCRYPTION: ""
+      MAIL_FROM_ADDRESS: no-reply@rahyaft.test
+      MAIL_FROM_NAME: Rahyaft Sanat
+      # Contact-form notifications go to Mailpit (http://localhost:8025), never
+      # to a real inbox. The domain must contain a dot: the app validates every
+      # address with filter_var(), which rejects "name@localhost".
+      MAIL_NOTIFY_TO: enquiries@rahyaft.test
+      # Set to 1 to re-import database/content/ on the next start.
+      SEED_ON_START: "0"
+    ports:
+      - "127.0.0.1:${WEB_PORT:-8100}:80"
+    volumes:
+      # Live source: edits on the host are served immediately.
+      - .:/var/www/html
+      # The container gets its own .env and lock, so the host's stay untouched.
+      - ./docker/state/app.env:/var/www/html/.env
+      - ./docker/state/installed.lock:/var/www/html/installed.lock
+
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: rahyaft-mailpit
+    restart: unless-stopped
+    environment:
+      MP_SMTP_AUTH_ACCEPT_ANY: "1"
+      MP_SMTP_AUTH_ALLOW_INSECURE: "1"
+    ports:
+      - "127.0.0.1:${MAILPIT_PORT:-8025}:8025"   # web UI — every mail the site sends lands here
+
+  adminer:
+    image: adminer:latest
+    container_name: rahyaft-adminer
+    restart: unless-stopped
+    depends_on:
+      - db
+    environment:
+      ADMINER_DEFAULT_SERVER: db
+    ports:
+      - "127.0.0.1:${ADMINER_PORT:-8081}:8080"
+
+volumes:
+  db-data:

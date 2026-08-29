@@ -1,36 +1,51 @@
 #!/usr/bin/env bash
 #
-# Rahyaft Sanat — local development helper.
+# Rahyaft Sanat — local development helper (Docker).
 #
-# Development only. It is never needed in production, where Apache serves the
-# site through index.php and .htaccess. You may delete it before deploying.
+# Everything runs in containers: PHP, Apache, MariaDB, a mail catcher and a
+# database browser. Nothing is installed on the host except Docker itself.
+# Development only — production uses Apache and index.php directly.
 #
 # Usage:
-#   ./dev.sh              start the site (same as `start`)
-#   ./dev.sh start        start the database and PHP dev server
-#   ./dev.sh stop         stop the dev server
+#   ./dev.sh              start the stack (same as `start`)
+#   ./dev.sh start        start the containers, installing on first run
+#   ./dev.sh stop         stop the containers, keeping the database
 #   ./dev.sh restart      stop, then start
 #   ./dev.sh status       show what is running and what is configured
-#   ./dev.sh install      wipe config and open the installation wizard
-#   ./dev.sh fresh        rebuild the database and reimport content (no wizard)
+#   ./dev.sh install      re-run configuration and installation (keeps the data)
+#   ./dev.sh fresh        rebuild the database from scratch and reimport content
 #   ./dev.sh seed         re-import the content from database/content/
-#   ./dev.sh logs         follow the application log
-#   ./dev.sh check        run environment and route checks
+#   ./dev.sh logs         follow the container and application logs
+#   ./dev.sh check        run environment, syntax and route checks
+#   ./dev.sh shell        open a shell inside the web container
+#   ./dev.sh db           open a MariaDB client on the site database
+#   ./dev.sh build        rebuild the PHP image (after editing docker/)
+#   ./dev.sh down         remove the containers (add --volumes to drop the data)
 #
 # Options:
-#   --port N              serve on a different port (default 8000)
+#   --port N              publish the site on a different port (default 8100)
 #   --no-open             do not open a browser
+#   -y, --yes             do not ask for confirmation on destructive commands
+#   --volumes             with `down`, also delete the database volume
 
 set -euo pipefail
 
 cd "$(dirname "${BASH_SOURCE[0]}")"
 
 ROOT="$(pwd)"
-PORT="${PORT:-8000}"
-HOST="127.0.0.1"
-LOG_FILE="$ROOT/storage/logs/dev-server.log"
+WEB_PORT="${WEB_PORT:-8100}"
 OPEN_BROWSER=1
-PID_FILE=""   # set after argument parsing, once PORT is known
+ASSUME_YES=0
+DROP_VOLUMES=0
+
+# The container's own configuration, written by the entrypoint on every start.
+# The .env in the project root belongs to the host and is never touched.
+STATE_ENV="$ROOT/docker/state/app.env"
+STATE_LOCK="$ROOT/docker/state/installed.lock"
+
+# Set by ensure_docker(); "plugin" is `docker compose`, "standalone" is
+# `docker-compose`.
+COMPOSE_KIND="plugin"
 
 # --- Presentation -----------------------------------------------------------
 
@@ -53,31 +68,92 @@ die()  { printf '\n%sError:%s %s\n\n' "$RED" "$RESET" "$*" >&2; exit 1; }
 COMMAND=""
 while [ $# -gt 0 ]; do
     case "$1" in
-        --port)     PORT="${2:-}"; shift 2 ;;
-        --port=*)   PORT="${1#*=}"; shift ;;
+        --port)     WEB_PORT="${2:-}"; shift 2 ;;
+        --port=*)   WEB_PORT="${1#*=}"; shift ;;
         --no-open)  OPEN_BROWSER=0; shift ;;
-        -h|--help)  sed -n '2,25p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'; exit 0 ;;
+        -y|--yes)   ASSUME_YES=1; shift ;;
+        --volumes|-v) DROP_VOLUMES=1; shift ;;
+        -h|--help)  sed -n '2,30p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'; exit 0 ;;
         -*)         die "Unknown option: $1" ;;
         *)          [ -z "$COMMAND" ] && COMMAND="$1"; shift ;;
     esac
 done
 COMMAND="${COMMAND:-start}"
 
-case "$PORT" in
-    ''|*[!0-9]*) die "Port must be a number (got '$PORT')." ;;
+case "$WEB_PORT" in
+    ''|*[!0-9]*) die "Port must be a number (got '$WEB_PORT')." ;;
 esac
 
-# One pid file per port, so two ports can run side by side.
-PID_FILE="$ROOT/storage/dev-server-$PORT.pid"
-BASE_URL="http://localhost:$PORT"
+# Compose reads these when publishing ports and when building APP_URL.
+export WEB_PORT
+BASE_URL="http://localhost:$WEB_PORT"
+
+# --- Docker -----------------------------------------------------------------
+
+# Prefer the v2 plugin, fall back to the standalone binary.
+compose_cmd() {
+    if docker compose version >/dev/null 2>&1; then
+        printf 'plugin'
+    elif command -v docker-compose >/dev/null 2>&1; then
+        printf 'standalone'
+    else
+        return 1
+    fi
+}
+
+dc() {
+    case "$COMPOSE_KIND" in
+        plugin)     docker compose "$@" ;;
+        standalone) docker-compose "$@" ;;
+    esac
+}
+
+# Make sure the daemon is up. On macOS that means launching Docker Desktop and
+# waiting for it, which takes a while on a cold boot.
+ensure_docker() {
+    command -v docker >/dev/null 2>&1 \
+        || die "Docker is not installed. Get Docker Desktop from https://docker.com/get-started"
+
+    COMPOSE_KIND="$(compose_cmd)" \
+        || die "Docker Compose is not available. Update Docker Desktop, or install the compose plugin."
+
+    if docker info >/dev/null 2>&1; then
+        return 0
+    fi
+
+    if [ "$(uname -s)" = "Darwin" ] && [ -d /Applications/Docker.app ]; then
+        warn "Docker Desktop is not running — starting it…"
+        open -a Docker >/dev/null 2>&1 || true
+        local waited=0
+        while [ "$waited" -lt 120 ]; do
+            if docker info >/dev/null 2>&1; then
+                ok "Docker Desktop is ready"
+                return 0
+            fi
+            sleep 2
+            waited=$((waited + 2))
+            [ $((waited % 20)) -eq 0 ] && say "    ${DIM}still starting… (${waited}s)${RESET}"
+        done
+        die "Docker Desktop did not become ready in 120s. Open it manually and retry."
+    fi
+
+    die "The Docker daemon is not running. Start Docker and retry."
+}
+
+confirm() {
+    [ "$ASSUME_YES" -eq 1 ] && return 0
+    printf '  Continue? [y/N] '
+    read -r answer
+    case "$answer" in y|Y|yes|YES) return 0 ;; *) say "  Cancelled."; exit 0 ;; esac
+}
 
 # --- Helpers ----------------------------------------------------------------
 
-# Read a key from .env without sourcing it (values may contain spaces/quotes).
+# Read a key from the container's .env without sourcing it.
 env_get() {
     local key="$1" line value
-    [ -f "$ROOT/.env" ] || return 0
-    line="$(grep -E "^${key}=" "$ROOT/.env" | tail -1 || true)"
+    [ -f "$STATE_ENV" ] || return 0
+    line="$(grep -E "^${key}=" "$STATE_ENV" | tail -1 || true)"
     [ -z "$line" ] && return 0
     value="${line#*=}"
     value="${value%\"}"; value="${value#\"}"
@@ -85,179 +161,136 @@ env_get() {
     printf '%s' "$value"
 }
 
-server_pid() {
-    [ -f "$PID_FILE" ] || return 1
-    local pid; pid="$(cat "$PID_FILE" 2>/dev/null || true)"
-    [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null && printf '%s' "$pid" && return 0
-    rm -f "$PID_FILE"
+# Compose refuses to bind-mount a file that does not exist yet.
+ensure_state_files() {
+    mkdir -p "$ROOT/docker/state"
+    [ -e "$STATE_ENV" ]  || : > "$STATE_ENV"
+    [ -e "$STATE_LOCK" ] || : > "$STATE_LOCK"
+}
+
+app_running() { [ "$(dc ps -q app 2>/dev/null | wc -l | tr -d ' ')" != "0" ]; }
+
+# curl prints "000" and exits non-zero when it cannot connect, so take its
+# output and only substitute a value when there was none at all.
+http_code() {
+    local code
+    code="$(curl -sS -o /dev/null -w '%{http_code}' -m 5 "$BASE_URL$1" 2>/dev/null || true)"
+    printf '%s' "${code:-000}"
+}
+
+# The site is only usable once the entrypoint has finished installing.
+wait_for_site() {
+    local waited=0
+    while [ "$waited" -lt 180 ]; do
+        case "$(http_code /fa)" in
+            200|302) return 0 ;;
+        esac
+        sleep 2
+        waited=$((waited + 2))
+    done
     return 1
 }
 
-port_in_use() { lsof -nP -iTCP:"$PORT" -sTCP:LISTEN >/dev/null 2>&1; }
-
 open_url() {
     [ "$OPEN_BROWSER" -eq 1 ] || return 0
-    if command -v open >/dev/null 2>&1;      then open "$1" >/dev/null 2>&1 || true
+    if command -v open >/dev/null 2>&1;       then open "$1" >/dev/null 2>&1 || true
     elif command -v xdg-open >/dev/null 2>&1; then xdg-open "$1" >/dev/null 2>&1 || true
     fi
 }
 
-# mysql client, and the arguments needed to reach the server as an admin.
-mysql_bin() {
-    for c in mysql mariadb; do command -v "$c" >/dev/null 2>&1 && { printf '%s' "$c"; return 0; }; done
-    return 1
-}
-
-# Try, in order: the current OS user, root without a password, root via sudo.
-mysql_admin() {
-    local bin; bin="$(mysql_bin)" || return 1
-    if "$bin" -u "$(whoami)" -e 'SELECT 1' >/dev/null 2>&1; then
-        printf '%s -u %s' "$bin" "$(whoami)"; return 0
-    fi
-    if "$bin" -u root -e 'SELECT 1' >/dev/null 2>&1; then
-        printf '%s -u root' "$bin"; return 0
-    fi
-    return 1
-}
-
-require_php() {
-    command -v php >/dev/null 2>&1 || die "PHP is not installed. On macOS: brew install php"
-    local version; version="$(php -r 'echo PHP_VERSION;')"
-    php -r 'exit(PHP_VERSION_ID >= 80100 ? 0 : 1);' \
-        || die "PHP 8.1 or newer is required (found $version)."
-}
-
-# Cached module list. Never pipe `php -m` straight into `grep -q`: grep exits on
-# the first match, php dies of SIGPIPE, and `set -o pipefail` reports the whole
-# pipeline as failed even though the extension is loaded.
-PHP_MODULES=""
-php_has_ext() {
-    [ -n "$PHP_MODULES" ] || PHP_MODULES="$(php -m)"
-    printf '%s\n' "$PHP_MODULES" | grep -qx "$1"
-}
-
-check_extensions() {
-    local missing=()
-    for ext in pdo_mysql mbstring json fileinfo; do
-        php_has_ext "$ext" || missing+=("$ext")
-    done
-    [ ${#missing[@]} -eq 0 ] || die "Missing required PHP extensions: ${missing[*]}"
-    php_has_ext gd || warn "The gd extension is missing — uploaded images will not get responsive sizes."
-}
-
-start_database() {
-    local bin; bin="$(mysql_bin)" || {
-        warn "No MySQL/MariaDB client found. On macOS: brew install mariadb"
-        return 1
-    }
-
-    if "$bin" -u "$(whoami)" -e 'SELECT 1' >/dev/null 2>&1 \
-       || "$bin" -u root -e 'SELECT 1' >/dev/null 2>&1; then
-        ok "Database server is running"
-        return 0
-    fi
-
-    local brew_services=""
-    command -v brew >/dev/null 2>&1 && brew_services="$(brew services list 2>/dev/null || true)"
-    if printf '%s\n' "$brew_services" | grep -q '^mariadb'; then
-        warn "Database is not responding — starting MariaDB…"
-        brew services start mariadb >/dev/null 2>&1 || true
-        for _ in 1 2 3 4 5 6 7 8 9 10; do
-            sleep 1
-            "$bin" -u "$(whoami)" -e 'SELECT 1' >/dev/null 2>&1 && { ok "Database server started"; return 0; }
-        done
-    fi
-
-    warn "Could not reach the database server. Start it yourself, then re-run."
-    return 1
-}
-
-ensure_directories() {
-    mkdir -p storage/logs storage/cache uploads/media uploads/files
-    for d in storage/logs storage/cache uploads/media uploads/files; do
-        [ -w "$d" ] || die "Directory not writable: $d"
-    done
-}
-
-installed() { [ -f "$ROOT/.env" ] && [ -f "$ROOT/installed.lock" ]; }
+installed() { [ -s "$STATE_LOCK" ] && [ -s "$STATE_ENV" ]; }
 
 # --- Commands ---------------------------------------------------------------
 
 cmd_start() {
     head_ "Rahyaft Sanat — local development"
 
-    require_php
-    ok "PHP $(php -r 'echo PHP_VERSION;')"
-    check_extensions
-    ensure_directories
-    ok "Writable directories ready"
+    ensure_docker
+    ok "Docker $(docker version --format '{{.Server.Version}}' 2>/dev/null || echo '')"
+    ensure_state_files
 
-    start_database || true
+    say ""
+    dc up -d 2>&1 | sed 's/^/  /'
 
-    if server_pid >/dev/null 2>&1; then
-        ok "Dev server already running (pid $(server_pid))"
-    elif port_in_use; then
-        die "Port $PORT is already in use by another process. Try: ./dev.sh start --port 8001"
+    head_ "Waiting for the site"
+    if wait_for_site; then
+        ok "Site responding on port $WEB_PORT"
     else
-        # Detached so this script can report status and exit; logs go to a file.
-        php -S "$HOST:$PORT" server.php >"$LOG_FILE" 2>&1 &
-        echo $! > "$PID_FILE"
-        sleep 1
-        if ! server_pid >/dev/null 2>&1; then
-            bad "Server failed to start on port $PORT"
-            sed 's/^/    /' <(tail -3 "$LOG_FILE")
-            say ""
-            say "  Try another port:  ${BOLD}./dev.sh start --port $((PORT + 1))${RESET}"
-            say ""
-            exit 1
-        fi
-        ok "Dev server started (pid $(server_pid)) on port $PORT"
-    fi
-
-    if ! installed; then
-        head_ "Not installed yet"
-        say "  Opening the installation wizard. Use these database details:"
+        bad "The site did not respond within 180s"
         say ""
-        say "    ${DIM}host${RESET}      127.0.0.1        ${DIM}port${RESET}  3306"
-        say "    ${DIM}database${RESET}  a new empty database you have created"
-        say "    ${DIM}user${RESET}      a MySQL user with full rights on it"
+        dc logs --tail 25 app 2>&1 | sed 's/^/    /'
         say ""
-        say "  Tip: ${BOLD}./dev.sh fresh${RESET} does all of that for you and skips the wizard."
+        say "  Full logs:  ${BOLD}./dev.sh logs${RESET}"
         say ""
-        say "  ${BLUE}$BASE_URL/install.php${RESET}"
-        open_url "$BASE_URL/install.php"
-        return 0
+        exit 1
     fi
 
     head_ "Running"
     say "  Website   ${BLUE}$BASE_URL/${RESET}"
-    say "  Admin     ${BLUE}$BASE_URL/admin${RESET}"
+    say "  Admin     ${BLUE}$BASE_URL/admin${RESET}   ${DIM}admin@localhost / password1234${RESET}"
+    say "  Mail      ${BLUE}http://localhost:${MAILPIT_PORT:-8025}${RESET}   ${DIM}every message the site sends${RESET}"
+    say "  Database  ${BLUE}http://localhost:${ADMINER_PORT:-8081}${RESET}   ${DIM}server db, user rahyaft_user, password rahyaft${RESET}"
     say ""
-    say "  ${DIM}Logs:${RESET} ./dev.sh logs      ${DIM}Stop:${RESET} ./dev.sh stop"
+    say "  ${DIM}Logs:${RESET} ./dev.sh logs      ${DIM}Stop:${RESET} ./dev.sh stop      ${DIM}Shell:${RESET} ./dev.sh shell"
     say ""
     open_url "$BASE_URL/"
 }
 
 cmd_stop() {
-    if pid="$(server_pid)"; then
-        kill "$pid" 2>/dev/null || true
-        sleep 1
-        kill -0 "$pid" 2>/dev/null && kill -9 "$pid" 2>/dev/null || true
-        rm -f "$PID_FILE"
-        ok "Dev server stopped (pid $pid)"
+    ensure_docker
+    head_ "Stopping"
+    dc stop 2>&1 | sed 's/^/  /'
+    ok "Containers stopped (the database is kept)"
+    say ""
+}
+
+cmd_down() {
+    ensure_docker
+    head_ "Removing containers"
+    if [ "$DROP_VOLUMES" -eq 1 ]; then
+        warn "--volumes given: the database will be deleted as well."
+        confirm
+        dc down -v 2>&1 | sed 's/^/  /'
+        : > "$STATE_ENV"; : > "$STATE_LOCK"
+        ok "Containers and database removed"
     else
-        warn "Dev server is not running"
+        dc down 2>&1 | sed 's/^/  /'
+        ok "Containers removed (the database volume is kept)"
     fi
+    say ""
 }
 
 cmd_status() {
     head_ "Status"
 
-    if command -v php >/dev/null 2>&1; then ok "PHP $(php -r 'echo PHP_VERSION;')"; else bad "PHP not installed"; fi
+    if ! command -v docker >/dev/null 2>&1; then
+        bad "Docker is not installed"; say ""; return 0
+    fi
+    COMPOSE_KIND="$(compose_cmd)" || { bad "Docker Compose is not available"; say ""; return 0; }
 
-    if mysql_admin >/dev/null 2>&1; then ok "Database server reachable"; else bad "Database server not reachable"; fi
+    if docker info >/dev/null 2>&1; then
+        ok "Docker daemon running"
+    else
+        bad "Docker daemon not running — ./dev.sh start will launch it"
+        say ""
+        return 0
+    fi
 
-    if pid="$(server_pid)"; then ok "Dev server running (pid $pid, port $PORT)"; else warn "Dev server not running"; fi
+    head_ "Containers"
+    local ps_out; ps_out="$(dc ps --format 'table {{.Service}}\t{{.Status}}' 2>/dev/null || true)"
+    if [ -z "$ps_out" ] || [ "$(printf '%s\n' "$ps_out" | wc -l | tr -d ' ')" -le 1 ]; then
+        warn "No containers running — start them with ./dev.sh start"
+    else
+        printf '%s\n' "$ps_out" | sed 's/^/  /'
+    fi
+
+    head_ "Site"
+    local code; code="$(http_code /fa)"
+    case "$code" in
+        200) ok "Responding at $BASE_URL/ (200)" ;;
+        000) bad "Not responding at $BASE_URL/" ;;
+        *)   warn "Responded with $code" ;;
+    esac
 
     if installed; then
         ok "Installed"
@@ -265,185 +298,160 @@ cmd_status() {
         say "     ${DIM}database${RESET}     $(env_get DB_NAME) @ $(env_get DB_HOST)"
         say "     ${DIM}app url${RESET}      $(env_get APP_URL)"
     else
-        warn "Not installed (.env or installed.lock missing)"
-    fi
-
-    if pid="$(server_pid)" >/dev/null 2>&1; then
-        local code; code="$(curl -sS -o /dev/null -w '%{http_code}' -m 3 "$BASE_URL/" 2>/dev/null || echo 000)"
-        case "$code" in
-            200|302) ok "Site responding ($code)" ;;
-            000)     bad "Site not responding" ;;
-            *)       warn "Site responded with $code" ;;
-        esac
+        warn "Not installed yet — ./dev.sh start installs on first run"
     fi
     say ""
 }
 
-# Ask the database for credentials it can use, creating them if needed.
+# Re-run configuration and installation against the existing database.
+cmd_install() {
+    ensure_docker
+    head_ "Reinstall"
+    warn "This rewrites the container's .env and re-runs the installation steps."
+    warn "The database and its content are left alone."
+    confirm
+
+    ensure_state_files
+    : > "$STATE_ENV"; : > "$STATE_LOCK"
+    ok "Container configuration cleared"
+
+    dc up -d 2>&1 | sed 's/^/  /'
+    dc restart app >/dev/null 2>&1 || true
+    wait_for_site || die "The site did not come back. See ./dev.sh logs"
+    ok "Reinstalled"
+    say ""
+    cmd_status
+}
+
+# Destroy the database and rebuild it from schema.sql + database/content/.
 cmd_fresh() {
-    require_php
-    start_database || die "The database server must be running."
-
-    local admin; admin="$(mysql_admin)" \
-        || die "Cannot connect to MySQL as an administrator. Create the database and user yourself, then use ./dev.sh install"
-
-    local db="${DB_NAME:-rahyaft}" user="${DB_USER:-rahyaft_user}" pass="${DB_PASSWORD:-LocalDev!2026}"
-
+    ensure_docker
     head_ "Rebuilding the database"
-    warn "This drops and recreates '$db'. All content and admin accounts are lost."
-    printf '  Continue? [y/N] '
-    read -r answer
-    case "$answer" in y|Y|yes|YES) ;; *) say "  Cancelled."; exit 0 ;; esac
+    warn "This drops the database volume. All content and admin accounts are lost."
+    confirm
 
-    $admin <<SQL
-DROP DATABASE IF EXISTS \`$db\`;
-CREATE DATABASE \`$db\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-CREATE USER IF NOT EXISTS '$user'@'localhost' IDENTIFIED BY '$pass';
-ALTER USER '$user'@'localhost' IDENTIFIED BY '$pass';
-GRANT ALL PRIVILEGES ON \`$db\`.* TO '$user'@'localhost';
-FLUSH PRIVILEGES;
-SQL
-    ok "Database '$db' created"
+    ensure_state_files
+    dc down -v 2>&1 | sed 's/^/  /'
+    : > "$STATE_ENV"; : > "$STATE_LOCK"
+    ok "Database removed"
 
-    ensure_directories
+    say ""
+    dc up -d --build 2>&1 | sed 's/^/  /'
 
-    # Write a development .env from the example, then override what we know.
-    if [ ! -f "$ROOT/.env" ]; then
-        cp "$ROOT/.env.example" "$ROOT/.env"
+    head_ "Installing"
+    if wait_for_site; then
+        dc logs app 2>&1 \
+            | sed -e 's/\x1b\[[0-9;]*m//g' -e 's/^[a-z-]*app *| *//' \
+            | grep -E '✓|Content import|^ *[a-z_]+ +[0-9]+ *$' \
+            | sed 's/^/  /' || true
+    else
+        bad "The site did not come up"
+        dc logs --tail 25 app 2>&1 | sed 's/^/    /'
+        exit 1
     fi
-    php -r '
-        $path = ".env";
-        $set = [
-            "APP_ENV" => "local",
-            "APP_DEBUG" => "true",
-            "APP_URL" => $argv[1],
-            "APP_KEY" => bin2hex(random_bytes(24)),
-            "APP_DEFAULT_LOCALE" => "fa",
-            "APP_LOCALES" => "fa,en,ar",
-            "DB_HOST" => "127.0.0.1", "DB_PORT" => "3306",
-            "DB_NAME" => $argv[2], "DB_USER" => $argv[3], "DB_PASSWORD" => $argv[4],
-            "DB_CHARSET" => "utf8mb4",
-            "MAIL_MAILER" => "mail",
-            "MAIL_FROM_ADDRESS" => "no-reply@localhost",
-            "MAIL_FROM_NAME" => "Rahyaft Sanat",
-            "MAIL_NOTIFY_TO" => "",
-        ];
-        $lines = file($path, FILE_IGNORE_NEW_LINES);
-        $seen = [];
-        foreach ($lines as $i => $line) {
-            if (preg_match("/^([A-Z0-9_]+)=/", $line, $m) && isset($set[$m[1]])) {
-                $v = $set[$m[1]];
-                $lines[$i] = $m[1] . "=" . (preg_match("/[\s#\"\x27]/", $v) ? "\"$v\"" : $v);
-                $seen[$m[1]] = true;
-            }
-        }
-        foreach ($set as $k => $v) {
-            if (!isset($seen[$k])) { $lines[] = "$k=" . (preg_match("/[\s#\"\x27]/", $v) ? "\"$v\"" : $v); }
-        }
-        file_put_contents($path, implode(PHP_EOL, $lines) . PHP_EOL);
-        chmod($path, 0600);
-    ' "$BASE_URL" "$db" "$user" "$pass"
-    ok "Wrote .env (development settings)"
-
-    local mysql_client; mysql_client="$(mysql_bin)"
-    # Feed the password on stdin-adjacent config rather than argv, which also
-    # avoids the client's "password on the command line is insecure" warning.
-    MYSQL_PWD="$pass" "$mysql_client" -u "$user" "$db" < database/schema.sql
-    ok "Schema loaded ($(grep -c 'CREATE TABLE' database/schema.sql) tables)"
-
-    php database/seed.php | sed 's/^/  /'
-
-    # A predictable local administrator, clearly marked as a development account.
-    php -r '
-        require "app/Core/Autoloader.php"; App\Core\Autoloader::register(__DIR__);
-        require "app/Support/helpers.php";
-        App\Core\Env::load(__DIR__ . "/.env");
-        App\Core\Config::loadDirectory(__DIR__ . "/config");
-        App\Core\Config::set("app.base_path", __DIR__);
-        if (!App\Models\AdminUser::emailExists("admin@localhost")) {
-            App\Models\AdminUser::create("Local Admin", "admin@localhost", "password1234", "owner");
-        }
-    '
-    ok "Administrator created"
-
-    printf 'installed %s\n' "$(date -u +%FT%TZ)" > "$ROOT/installed.lock"
-    chmod 600 "$ROOT/installed.lock"
-    ok "Installation locked"
 
     head_ "Ready"
     say "  ${BOLD}admin@localhost${RESET} / ${BOLD}password1234${RESET}   ${DIM}(development only)${RESET}"
     say ""
-    if server_pid >/dev/null 2>&1; then
-        say "  Website   ${BLUE}$BASE_URL/${RESET}"
-        say "  Admin     ${BLUE}$BASE_URL/admin${RESET}"
-    else
-        say "  Start the server with: ${BOLD}./dev.sh start${RESET}"
-    fi
+    say "  Website   ${BLUE}$BASE_URL/${RESET}"
+    say "  Admin     ${BLUE}$BASE_URL/admin${RESET}"
     say ""
-}
-
-cmd_install() {
-    head_ "Reset configuration"
-    warn "This deletes .env and installed.lock so the wizard can run again."
-    warn "The database itself is left alone."
-    printf '  Continue? [y/N] '
-    read -r answer
-    case "$answer" in y|Y|yes|YES) ;; *) say "  Cancelled."; exit 0 ;; esac
-
-    rm -f "$ROOT/.env" "$ROOT/installed.lock"
-    ok "Configuration cleared"
-    cmd_start
+    open_url "$BASE_URL/"
 }
 
 cmd_seed() {
-    require_php
-    installed || die "Not installed yet. Run ./dev.sh fresh or ./dev.sh install first."
+    ensure_docker
+    app_running || die "The containers are not running. Start them with ./dev.sh start"
     head_ "Importing content"
     warn "Specifications, capabilities and page sections are rewritten from source."
-    php database/seed.php | sed 's/^/  /'
+    dc exec -T app php database/seed.php | sed 's/^/  /'
     say ""
 }
 
 cmd_logs() {
-    local app_log="storage/logs/app-$(date +%Y-%m).log"
+    ensure_docker
+    local app_log="$ROOT/storage/logs/app-$(date +%Y-%m).log"
     head_ "Logs  ${DIM}(Ctrl+C to stop)${RESET}"
-    touch "$app_log" "$LOG_FILE"
-    tail -f "$app_log" "$LOG_FILE"
+    mkdir -p "$ROOT/storage/logs"
+    touch "$app_log"
+
+    # The application's own log lives on disk; Apache and the bootstrap write to
+    # the container's output. Follow both.
+    tail -f "$app_log" &
+    local tail_pid=$!
+    trap 'kill "$tail_pid" 2>/dev/null || true' EXIT INT TERM
+    dc logs -f app
+}
+
+cmd_shell() {
+    ensure_docker
+    app_running || die "The containers are not running. Start them with ./dev.sh start"
+    dc exec app bash
+}
+
+cmd_db() {
+    ensure_docker
+    app_running || die "The containers are not running. Start them with ./dev.sh start"
+    dc exec db mariadb --disable-ssl-verify-server-cert \
+        -u"$(env_get DB_USER)" -p"$(env_get DB_PASSWORD)" "$(env_get DB_NAME)"
+}
+
+cmd_build() {
+    ensure_docker
+    ensure_state_files
+    head_ "Rebuilding the PHP image"
+    dc build app 2>&1 | sed 's/^/  /'
+    ok "Image rebuilt — ./dev.sh restart to use it"
+    say ""
 }
 
 cmd_check() {
-    require_php
+    ensure_docker
+    app_running || die "The containers are not running. Start them with ./dev.sh start"
+
     head_ "Environment"
-    ok "PHP $(php -r 'echo PHP_VERSION;')"
-    for ext in pdo_mysql mbstring json fileinfo gd openssl; do
-        if php_has_ext "$ext"; then ok "ext: $ext"; else warn "ext: $ext (missing)"; fi
+    ok "PHP $(dc exec -T app php -r 'echo PHP_VERSION;')"
+    local modules; modules="$(dc exec -T app php -m)"
+    for ext in pdo_mysql mbstring json fileinfo gd openssl zip; do
+        if printf '%s\n' "$modules" | grep -qix "$ext"; then ok "ext: $ext"; else warn "ext: $ext (missing)"; fi
     done
 
     head_ "Syntax"
-    local failed=0 count=0
-    while IFS= read -r f; do
-        count=$((count + 1))
-        php -l "$f" >/dev/null 2>&1 || { bad "$f"; failed=1; }
-    done < <(find app config database resources routes -name '*.php' -not -path '*/Vendor/*')
-    [ $failed -eq 0 ] && ok "$count files parse cleanly"
-
-    server_pid >/dev/null 2>&1 || { warn "Dev server not running — skipping route checks"; say ""; return 0; }
+    local out
+    out="$(dc exec -T app bash -c '
+        failed=0; count=0
+        while IFS= read -r f; do
+            count=$((count + 1))
+            php -l "$f" >/dev/null 2>&1 || { echo "FAIL $f"; failed=1; }
+        done < <(find app config database resources routes -name "*.php" -not -path "*/Vendor/*")
+        echo "COUNT $count"
+        exit $failed
+    ')" || true
+    printf '%s\n' "$out" | grep '^FAIL ' | sed "s/^FAIL /  ${RED}✗${RESET} /" || true
+    if ! printf '%s\n' "$out" | grep -q '^FAIL '; then
+        ok "$(printf '%s\n' "$out" | sed -n 's/^COUNT //p') files parse cleanly"
+    fi
 
     head_ "Routes"
-    local bad_routes=0
-    for path in "/fa/" "/en/" "/ar/" "/fa/products" "/en/research" "/ar/about" "/fa/contact" "/sitemap.xml" "/robots.txt"; do
-        local code; code="$(curl -sS -o /dev/null -w '%{http_code}' -m 5 "$BASE_URL$path" 2>/dev/null || echo 000)"
+    local bad_routes=0 code
+    for path in "/fa" "/en" "/ar" "/fa/products" "/en/research" "/ar/about" "/fa/contact" "/sitemap.xml" "/robots.txt"; do
+        code="$(http_code "$path")"
         case "$code" in 200) ;; *) bad "$path -> $code"; bad_routes=1 ;; esac
     done
     [ $bad_routes -eq 0 ] && ok "public routes respond"
 
-    for path in "/.env" "/app/Core/Database.php" "/database/schema.sql"; do
-        local code; code="$(curl -sS -o /dev/null -w '%{http_code}' -m 5 "$BASE_URL$path" 2>/dev/null || echo 000)"
+    for path in "/.env" "/app/Core/Database.php" "/database/schema.sql" "/installed.lock"; do
+        code="$(http_code "$path")"
         case "$code" in 403|404) ok "blocked: $path" ;; *) bad "EXPOSED: $path -> $code" ;; esac
     done
 
-    local code; code="$(curl -sS -o /dev/null -w '%{http_code}' -m 5 "$BASE_URL/admin" 2>/dev/null || echo 000)"
+    code="$(http_code /admin)"
     case "$code" in 302) ok "admin requires sign-in" ;; *) bad "admin returned $code" ;; esac
+
+    head_ "Mail"
+    code="$(curl -sS -o /dev/null -w '%{http_code}' -m 5 \
+        "http://localhost:${MAILPIT_PORT:-8025}/api/v1/messages" 2>/dev/null || true)"
+    case "$code" in 200) ok "Mailpit reachable on ${MAILPIT_PORT:-8025}" ;; *) warn "Mailpit not reachable" ;; esac
     say ""
 }
 
@@ -451,11 +459,15 @@ case "$COMMAND" in
     start)   cmd_start ;;
     stop)    cmd_stop ;;
     restart) cmd_stop; cmd_start ;;
+    down)    cmd_down ;;
     status)  cmd_status ;;
     install) cmd_install ;;
     fresh)   cmd_fresh ;;
     seed)    cmd_seed ;;
     logs)    cmd_logs ;;
+    shell)   cmd_shell ;;
+    db)      cmd_db ;;
+    build)   cmd_build ;;
     check)   cmd_check ;;
     *)       die "Unknown command '$COMMAND'. Try: ./dev.sh --help" ;;
 esac

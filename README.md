@@ -14,6 +14,8 @@ the production server.
 - [Requirements](#requirements)
 - [What is included](#what-is-included)
 - [Local installation](#local-installation)
+  - [With Docker](#with-docker-nothing-to-install)
+  - [The dev.sh helper](#the-devsh-helper)
 - [cPanel / shared-hosting installation](#cpanel--shared-hosting-installation)
 - [Database setup](#database-setup)
 - [Creating the first administrator](#creating-the-first-administrator)
@@ -51,6 +53,10 @@ and the project ships its own PSR-4 autoloader.
 it, set `APP_URL` to include `/index.php` — for example
 `APP_URL=https://example.com/index.php`.
 
+None of this needs installing if you use
+[Docker](#with-docker-nothing-to-install): the containers already provide PHP
+8.3, MariaDB 11.4, Apache with `mod_rewrite`, and every extension above.
+
 ---
 
 ## What is included
@@ -79,36 +85,104 @@ it, set `APP_URL` to include `/index.php` — for example
 
 ## Local installation
 
-### The quick way
+### With Docker (nothing to install)
+
+The only prerequisite is Docker Desktop (macOS/Windows) or Docker Engine with
+the Compose plugin (Linux). PHP, MariaDB and every required extension live in
+the containers, so nothing is installed on the host.
 
 ```bash
-./dev.sh fresh     # create the database, load the schema, import the content
-./dev.sh start     # start the site and open it in a browser
+./dev.sh
 ```
 
-`fresh` creates a local admin account: **admin@localhost / password1234**.
-These are development credentials — never use them on a live site.
+That is the whole setup. On macOS `dev.sh` launches Docker Desktop and waits for
+it if the daemon is not running, then brings the stack up and does not return
+until the site answers. The first run builds the PHP image, waits for MariaDB,
+loads `database/schema.sql`, imports `database/content/`, creates the
+administrator and locks the installation — the `install.php` wizard is not
+needed.
 
-`dev.sh` commands:
+`docker compose up -d --build` does the same thing if you prefer to drive
+Compose yourself, but then you must start Docker Desktop first.
+
+| Service | URL | Purpose |
+|---|---|---|
+| Website | <http://localhost:8100> | The site itself (`/fa`, `/en`, `/ar`) |
+| Admin | <http://localhost:8100/admin> | **admin@localhost / password1234** |
+| Mailpit | <http://localhost:8025> | Every e-mail the site sends is caught here |
+| Adminer | <http://localhost:8081> | Database browser (server `db`, user `rahyaft_user`, password `rahyaft`) |
+| MariaDB | `127.0.0.1:13306` | For an external client |
+
+The host ports are deliberately unusual so the stack cannot collide with a
+Homebrew MariaDB on 3306 or another project on 8000. If they still clash, use
+`./dev.sh start --port N`, or set `WEB_PORT`, `ADMINER_PORT`, `MAILPIT_PORT` and
+`DB_PORT_HOST` in the environment.
+
+Day-to-day work goes through [`dev.sh`](#the-devsh-helper) — `start`, `stop`,
+`fresh`, `seed`, `logs`, `shell`, `db`, `check`. The equivalent raw Compose
+commands are `docker compose up -d`, `stop`, `down [-v]`, `logs -f app` and
+`exec app …` if you would rather not use the wrapper.
+
+The project directory is mounted into the container, so edits to PHP, CSS and
+templates are live on the next request — there is nothing to rebuild. Rebuild
+the image (`docker compose up -d --build`) only after changing anything under
+`docker/`.
+
+To re-import `database/content/` on the next start instead of by hand, set
+`SEED_ON_START: "1"` in `docker-compose.yml`.
+
+**Your own `.env` is never touched.** The container reads its own configuration
+from `docker/state/app.env`, which the entrypoint regenerates on every start
+from the `app` service's `environment:` block in `docker-compose.yml` — that
+block, not the file, is where you change container settings. The same applies
+to `docker/state/installed.lock`. Both are git-ignored.
+
+Mail is delivered to Mailpit rather than the internet. Addresses need a dot in
+the domain (`no-reply@rahyaft.test`, not `no-reply@localhost`): the application
+validates every address with `filter_var()`, which rejects the latter.
+
+### The `dev.sh` helper
+
+`dev.sh` drives the containers, so it needs nothing on the host but Docker. On
+macOS it starts Docker Desktop for you and waits for it if the daemon is down.
+
+```bash
+./dev.sh          # start everything, installing on the first run
+./dev.sh fresh    # rebuild the database from scratch and reimport the content
+```
+
+`fresh` recreates the local admin account: **admin@localhost / password1234**.
+These are development credentials — never use them on a live site.
 
 | Command | What it does |
 |---|---|
-| `./dev.sh` or `start` | Check requirements, start MariaDB if needed, serve the site |
-| `./dev.sh stop` | Stop the dev server |
+| `./dev.sh` or `start` | Start the containers; installs on first run, then waits until the site answers |
+| `./dev.sh stop` | Stop the containers, keeping the database |
 | `./dev.sh restart` | Stop, then start |
-| `./dev.sh status` | Show what is running and which database is configured |
-| `./dev.sh fresh` | Rebuild the database and reimport all content (destructive, asks first) |
-| `./dev.sh install` | Clear `.env` and open the installation wizard instead |
+| `./dev.sh status` | Docker, container, site and configuration state |
+| `./dev.sh fresh` | Drop the database, rebuild it and reimport all content (destructive, asks first) |
+| `./dev.sh install` | Rewrite the container config and re-run installation, keeping the data |
 | `./dev.sh seed` | Re-import content from `database/content/` |
-| `./dev.sh logs` | Follow the application and server logs |
-| `./dev.sh check` | Verify extensions, syntax, routes and that private paths are blocked |
+| `./dev.sh logs` | Follow the container output and the application log together |
+| `./dev.sh check` | Verify extensions, PHP syntax, routes, blocked paths and mail |
+| `./dev.sh shell` | A bash shell inside the web container |
+| `./dev.sh db` | A MariaDB client on the site database |
+| `./dev.sh build` | Rebuild the PHP image after editing anything in `docker/` |
+| `./dev.sh down` | Remove the containers; `--volumes` also deletes the database |
 
-Options: `--port N` to use another port, `--no-open` to skip opening a browser.
+Options: `--port N` to publish the site elsewhere (it also updates `APP_URL`),
+`--no-open` to skip opening a browser, `-y` to skip the confirmation prompt on
+`fresh`, `install` and `down --volumes`.
 
 `dev.sh` is a development convenience only — production uses Apache and
-`index.php`. You may delete it, along with `server.php`, before deploying.
+`index.php`. You may delete it, along with `server.php` and `docker/`, before
+deploying.
 
-### By hand
+### Without Docker
+
+To run on the host instead, you need PHP 8.1+, MariaDB/MySQL and the extensions
+listed under [Requirements](#requirements). `dev.sh` no longer sets that up, so
+do it by hand:
 
 ```bash
 # 1. Create the database and a user
